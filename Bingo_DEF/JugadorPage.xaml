@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BingoTop.JugadorPage">
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#0f0c29" Offset="0.1" />
+            <GradientStop Color="#302b63" Offset="0.5" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+    <VerticalStackLayout Padding="30" Spacing="25" VerticalOptions="Center">
+        <Label x:Name="SalaLabel" Text="MI CARTÓN" TextColor="Gold" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center"/>
+        <Border BackgroundColor="#CC000000" StrokeShape="RoundRectangle 20" Padding="15">
+            <Grid x:Name="CartonGrid" RowDefinitions="*,*,*" ColumnDefinitions="*,*,*,*,*" HeightRequest="300" ColumnSpacing="10" RowSpacing="10"/>
+        </Border>
+        <Button Text="¡BINGO!" Clicked="OnCantarBingo" BackgroundColor="#27ae60" HeightRequest="60" CornerRadius="30" FontAttributes="Bold"/>
+    </VerticalStackLayout>
+</ContentPage>

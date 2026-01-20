@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Bingo_DEF.GestionSalaPage" 
+             Title="Gestión de Sala">
+
+    <VerticalStackLayout Padding="30" Spacing="25" VerticalOptions="Center">
+        <Label Text="NUEVA PARTIDA" FontSize="32" FontAttributes="Bold" HorizontalOptions="Center" />
+
+        <Border StrokeShape="RoundRectangle 10" Padding="20" BackgroundColor="#F0F0F0">
+            <VerticalStackLayout Spacing="10">
+                <Label Text="ID DE LA SALA:" HorizontalOptions="Center" TextColor="Gray" />
+                <Label x:Name="IdSalaLabel" Text="----" FontSize="40" FontAttributes="Bold" HorizontalOptions="Center" TextColor="Black" />
+            </VerticalStackLayout>
+        </Border>
+
+        <Button Text="INICIAR PANEL ADMIN" 
+                Clicked="OnIniciarPartidaClicked" 
+                HeightRequest="60" 
+                CornerRadius="10" />
+    </VerticalStackLayout>
+</ContentPage>
