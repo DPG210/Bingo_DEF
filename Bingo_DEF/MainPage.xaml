@@ -34,7 +34,7 @@
                     <Button Grid.Row="0" Grid.Column="1" Text="PAUSA" BackgroundColor="#00A3FF" Clicked="OnPauseClicked" FontAttributes="Bold" TextColor="White"/>
                     <Button Grid.Row="0" Grid.Column="2" Text="RESET" BackgroundColor="#FF4B4B" Clicked="OnReiniciarClicked" FontAttributes="Bold" TextColor="White"/>
 
-                    <Button x:Name="BtnVel1" Grid.Row="1" Grid.Column="0" Text="x1" Clicked="SetVel1" BackgroundColor="#2D3265" TextColor="White"/>
+                    <Button x:Name="BtnVel1" Grid.Row="1" Grid.Column="0" Text="x1" Clicked="SetVel1" BackgroundColor="#C648FF" TextColor="White"/>
                     <Button x:Name="BtnVel1_5" Grid.Row="1" Grid.Column="1" Text="x1.5" Clicked="SetVel1_5" BackgroundColor="#2D3265" TextColor="White"/>
                     <Button x:Name="BtnVel2" Grid.Row="1" Grid.Column="2" Text="x2" Clicked="SetVel2" BackgroundColor="#2D3265" TextColor="White"/>
                 </Grid>
@@ -52,11 +52,12 @@
             <Border StrokeShape="RoundRectangle 25" BackgroundColor="#1A1D3D" Padding="20">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="TABLERO GENERAL" TextColor="White" FontSize="22" HorizontalOptions="Center" FontAttributes="Bold"/>
-                    <Grid x:Name="BingoBoardGrid" RowDefinitions="*,*,*,*,*,*,*,*,*" ColumnDefinitions="*,*,*,*,*,*,*,*,*,*" ColumnSpacing="6" RowSpacing="6" HeightRequest="500" />
+                    <Grid x:Name="BingoBoardGrid" RowDefinitions="*,*,*,*,*,*,*,*,*" ColumnDefinitions="*,*,*,*,*,*,*,*,*,*" ColumnSpacing="6" RowSpacing="6" HeightRequest="450" />
                 </VerticalStackLayout>
             </Border>
-            <Border StrokeShape="RoundRectangle 15" BackgroundColor="#0B0D1A" HeightRequest="80" Padding="10">
-                <HorizontalStackLayout x:Name="BallHistoryContainer" Spacing="10" HorizontalOptions="Center"/>
+
+            <Border StrokeShape="RoundRectangle 15" BackgroundColor="#0B0D1A" HeightRequest="90" Padding="10">
+                <HorizontalStackLayout x:Name="BallHistoryContainer" Spacing="15" HorizontalOptions="Center" VerticalOptions="Center"/>
             </Border>
         </VerticalStackLayout>
 
