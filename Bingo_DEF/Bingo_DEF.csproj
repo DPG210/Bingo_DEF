@@ -65,21 +65,21 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="GestionSalaPage.xaml.cs">
-	    <DependentUpon>GestionSalaPage.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="JugadorPage.xaml.cs">
-	    <DependentUpon>JugadorPage.xaml</DependentUpon>
-	  </Compile>
+	  <Compile Update="GestionSalaPage.xaml.cs">
+	    <DependentUpon>GestionSalaPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="JugadorPage.xaml.cs">
+	    <DependentUpon>JugadorPage.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="GestionSalaPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="JugadorPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
+	  <MauiXaml Update="GestionSalaPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="JugadorPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 
 </Project>
