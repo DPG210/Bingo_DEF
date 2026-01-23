@@ -37,7 +37,9 @@ public partial class MainPage : ContentPage
 
     private void IniciarEscuchaAvisos()
     {
+        // 1. IMPORTANTE: Cancelar cualquier escucha previa antes de empezar una nueva
         _escuchaAvisos?.Dispose();
+
         _escuchaAvisos = _fb.Child("Salas").Child(_idSala).Child("Avisos")
            .AsObservable<JObject>()
            .Subscribe(notif => {
@@ -49,12 +51,10 @@ public partial class MainPage : ContentPage
 
                    MainThread.BeginInvokeOnMainThread(async () => {
                        _timer.Stop();
-
-                       // AVISO POR VOZ
+                       NotificationLabel.Text = $"📢 {nick.ToUpper()} CANTA {premio} 📢";
                        await TextToSpeech.Default.SpeakAsync($"Atención, {nick} ha cantado {premio}");
 
-                       // MENSAJE DE VALIDACIÓN PERSONALIZADO
-                       string textoAlerta = premio == "BINGO"
+                       string textoAlerta = (premio == "BINGO")
                            ? $"🔥 ¡{nick} dice tener BINGO! ¿Es correcto?"
                            : $"⭐ {nick} dice tener LÍNEA. ¿Es correcta?";
 
@@ -78,16 +78,14 @@ public partial class MainPage : ContentPage
         VictoryMessage.Text = $"¡{nick.ToUpper()} ha ganado {(premioLimpio == "BINGO" ? "el BINGO" : "la LÍNEA")}!";
         VictoryEmoji.Text = premioLimpio == "BINGO" ? "👑" : "⭐";
 
-        // BOTÓN NUEVA PARTIDA SOLO EN BINGO
         BtnNuevaPartida.IsVisible = (premioLimpio == "BINGO");
         BtnSeguirPartida.WidthRequest = (premioLimpio == "BINGO") ? 200 : 350;
 
         VictoryOverlay.IsVisible = true;
         VictoryOverlay.Opacity = 0;
         await VictoryOverlay.FadeTo(1, 500);
-
-        // VOZ DE CELEBRACIÓN
-        await TextToSpeech.Default.SpeakAsync($"Felicidades {nick} por tu {premio}");
+        _ = VictoryTitle.ScaleTo(1.2, 500).ContinueWith(t => MainThread.BeginInvokeOnMainThread(() => VictoryTitle.ScaleTo(1.0, 500)));
+        await TextToSpeech.Default.SpeakAsync($"Felicidades {nick}!");
     }
 
     private void MarcarTablero(int n)
@@ -97,7 +95,6 @@ public partial class MainPage : ContentPage
             b.BackgroundColor = Color.FromArgb("#FFD700");
             if (b.Content is Label l) l.TextColor = Colors.Black;
 
-            // NEÓN GLOW
             b.Shadow = new Shadow
             {
                 Brush = new SolidColorBrush(Color.FromArgb("#FFD700")),
@@ -105,7 +102,6 @@ public partial class MainPage : ContentPage
                 Opacity = 0.8f
             };
 
-            // PARPADEO
             _ = b.ScaleTo(1.3, 300).ContinueWith(t => MainThread.BeginInvokeOnMainThread(() => b.ScaleTo(1.0, 300)));
         }
     }
@@ -128,6 +124,108 @@ public partial class MainPage : ContentPage
             await TextToSpeech.Default.SpeakAsync(n.ToString(), new SpeechOptions { Locale = voz });
     }
 
+    private void BuildBoard()
+    {
+        BingoBoardGrid.Children.Clear();
+        _celdasTablero.Clear(); // 2. IMPORTANTE: Limpiar el diccionario para la nueva partida
+        for (int i = 1; i <= 90; i++)
+        {
+            var b = new Border
+            {
+                StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 8 },
+                BackgroundColor = Color.FromArgb("#11White"),
+                Content = new Label { Text = i.ToString(), TextColor = Color.FromArgb("#48CAE4"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold }
+            };
+            _celdasTablero[i] = b;
+            BingoBoardGrid.Add(b, (i - 1) % 10, (i - 1) / 10);
+        }
+    }
+
+    // --- EVENTOS DE BOTONES ---
+    private void OnCloseVictoryClicked(object sender, EventArgs e) { VictoryOverlay.IsVisible = false; _timer.Start(); }
+
+    private void OnVictoryResetClicked(object sender, EventArgs e)
+    {
+        VictoryOverlay.IsVisible = false;
+        // Pasamos null para que OnReiniciarClicked sepa que viene de una victoria y no pida confirmación extra
+        OnReiniciarClicked(null, EventArgs.Empty);
+    }
+
+    private async void OnReiniciarClicked(object? sender, EventArgs e)
+    {
+        // Si el sender es el botón RESET de la UI, pedimos confirmación
+        if (sender is Button b && b.Text == "RESET")
+        {
+            bool confirmar = await this.DisplayAlert("RESET", "¿Nueva sala?", "SÍ", "NO");
+            if (!confirmar) return;
+        }
+
+        _timer.Stop();
+        // Generar nueva ID
+        _idSala = "SALA" + DateTime.Now.Ticks.ToString().Substring(10);
+
+        // Resetear variables lógicas
+        _bombo = Enumerable.Range(1, 90).ToList();
+        _ultimasBolas.Clear();
+        _contadorBolas = 0;
+
+        // Resetear UI
+        BallCounterLabel.Text = "Bolas: 0/90";
+        CurrentNumberLabel.Text = "--";
+        NotificationLabel.Text = "Esperando avisos...";
+        BallHistoryContainer.Children.Clear();
+
+        BuildBoard();
+        await GenerarCodigoQR();
+
+        // 3. RECONECTAR LA ESCUCHA A LA NUEVA ID DE SALA
+        IniciarEscuchaAvisos();
+
+        QRModal.IsVisible = true;
+    }
+
+    // El resto de funciones (GenerarCodigoQR, SetVel, CargarVoces...) se mantienen igual que antes
+    private async Task GenerarCodigoQR()
+    {
+        string url = $"https://dpg210.github.io/bingo/?sala={_idSala}";
+        byte[] imageBytes = await Task.Run(() => {
+            var qr = QRCodeGenerator.CreateQrCode(url, ECCLevel.L);
+            using var surface = SKSurface.Create(new SKImageInfo(300, 300));
+            surface.Canvas.Clear(SKColors.White);
+            surface.Canvas.Render(qr, 300, 300, SKColors.White, SKColors.Black);
+            using var img = surface.Snapshot();
+            return img.Encode(SKEncodedImageFormat.Png, 100).ToArray();
+        });
+        QRCodeImage.Source = ImageSource.FromStream(() => new MemoryStream(imageBytes));
+    }
+
+    private void OnStartClicked(object sender, EventArgs e) => _timer.Start();
+    private void OnPauseClicked(object sender, EventArgs e) => _timer.Stop();
+    private void OnCloseQRClicked(object sender, EventArgs e) => QRModal.IsVisible = false;
+    private async void OnGenerateQRClicked(object sender, EventArgs e) { await GenerarCodigoQR(); QRModal.IsVisible = true; }
+    private void SetVel1(object sender, EventArgs e) { _timer.Interval = TimeSpan.FromSeconds(4); ActualizarEstiloBotonesVelocidad((Button)sender); }
+    private void SetVel1_5(object sender, EventArgs e) { _timer.Interval = TimeSpan.FromSeconds(2.6); ActualizarEstiloBotonesVelocidad((Button)sender); }
+    private void SetVel2(object sender, EventArgs e) { _timer.Interval = TimeSpan.FromSeconds(2); ActualizarEstiloBotonesVelocidad((Button)sender); }
+
+    private void ActualizarEstiloBotonesVelocidad(Button botonActivo)
+    {
+        BtnVel1.BackgroundColor = Color.FromArgb("#1E5B6E");
+        BtnVel1_5.BackgroundColor = Color.FromArgb("#1E5B6E");
+        BtnVel2.BackgroundColor = Color.FromArgb("#1E5B6E");
+        botonActivo.BackgroundColor = Color.FromArgb("#C648FF");
+    }
+
+    private async Task CargarVoces()
+    {
+        try
+        {
+            var locales = await TextToSpeech.Default.GetLocalesAsync();
+            VoicePicker.ItemsSource = locales.Where(l => l.Language.StartsWith("es")).ToList();
+            if (VoicePicker.ItemsSource.Count > 0) VoicePicker.SelectedIndex = 0;
+        }
+        catch { }
+    }
+
     private void ActualizarHistorial(int n)
     {
         _ultimasBolas.Insert(0, n);
@@ -146,78 +244,5 @@ public partial class MainPage : ContentPage
             if (bola == n) b.Stroke = Color.FromArgb("#C648FF");
             BallHistoryContainer.Children.Add(b);
         }
-    }
-
-    private void BuildBoard()
-    {
-        BingoBoardGrid.Children.Clear();
-        for (int i = 1; i <= 90; i++)
-        {
-            var b = new Border
-            {
-                StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 8 },
-                BackgroundColor = Color.FromArgb("#11White"),
-                Content = new Label { Text = i.ToString(), TextColor = Color.FromArgb("#48CAE4"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold }
-            };
-            _celdasTablero[i] = b;
-            BingoBoardGrid.Add(b, (i - 1) % 10, (i - 1) / 10);
-        }
-    }
-
-    // EVENTOS DE BOTONES
-    private void OnCloseVictoryClicked(object sender, EventArgs e) { VictoryOverlay.IsVisible = false; _timer.Start(); }
-    private void OnVictoryResetClicked(object sender, EventArgs e) { VictoryOverlay.IsVisible = false; OnReiniciarClicked(sender, e); }
-    private void OnStartClicked(object sender, EventArgs e) => _timer.Start();
-    private void OnPauseClicked(object sender, EventArgs e) => _timer.Stop();
-    private void OnCloseQRClicked(object sender, EventArgs e) => QRModal.IsVisible = false;
-    private async void OnGenerateQRClicked(object sender, EventArgs e) { await GenerarCodigoQR(); QRModal.IsVisible = true; }
-
-    private void SetVel1(object sender, EventArgs e) { _timer.Interval = TimeSpan.FromSeconds(4); ActualizarEstiloBotonesVelocidad((Button)sender); }
-    private void SetVel1_5(object sender, EventArgs e) { _timer.Interval = TimeSpan.FromSeconds(2.6); ActualizarEstiloBotonesVelocidad((Button)sender); }
-    private void SetVel2(object sender, EventArgs e) { _timer.Interval = TimeSpan.FromSeconds(2); ActualizarEstiloBotonesVelocidad((Button)sender); }
-
-    private void ActualizarEstiloBotonesVelocidad(Button botonActivo)
-    {
-        BtnVel1.BackgroundColor = Color.FromArgb("#1E5B6E");
-        BtnVel1_5.BackgroundColor = Color.FromArgb("#1E5B6E");
-        BtnVel2.BackgroundColor = Color.FromArgb("#1E5B6E");
-        botonActivo.BackgroundColor = Color.FromArgb("#C648FF");
-    }
-
-    private async void OnReiniciarClicked(object sender, EventArgs e)
-    {
-        _timer.Stop();
-        _idSala = "SALA" + DateTime.Now.Ticks.ToString().Substring(10);
-        _bombo = Enumerable.Range(1, 90).ToList();
-        _ultimasBolas.Clear();
-        _contadorBolas = 0;
-        BuildBoard();
-        await GenerarCodigoQR();
-        QRModal.IsVisible = true;
-    }
-
-    private async Task GenerarCodigoQR()
-    {
-        string url = $"https://dpg210.github.io/bingo/?sala={_idSala}";
-        byte[] imageBytes = await Task.Run(() => {
-            var qr = QRCodeGenerator.CreateQrCode(url, ECCLevel.L);
-            using var surface = SKSurface.Create(new SKImageInfo(300, 300));
-            surface.Canvas.Clear(SKColors.White);
-            surface.Canvas.Render(qr, 300, 300, SKColors.White, SKColors.Black);
-            using var img = surface.Snapshot();
-            return img.Encode(SKEncodedImageFormat.Png, 100).ToArray();
-        });
-        QRCodeImage.Source = ImageSource.FromStream(() => new MemoryStream(imageBytes));
-    }
-
-    private async Task CargarVoces()
-    {
-        try
-        {
-            var locales = await TextToSpeech.Default.GetLocalesAsync();
-            VoicePicker.ItemsSource = locales.Where(l => l.Language.StartsWith("es")).ToList();
-            if (VoicePicker.ItemsSource.Count > 0) VoicePicker.SelectedIndex = 0;
-        }
-        catch { }
     }
 }
