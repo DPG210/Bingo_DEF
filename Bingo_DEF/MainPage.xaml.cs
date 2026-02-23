@@ -17,6 +17,7 @@ public partial class MainPage : ContentPage
     private readonly IDispatcherTimer _timer;
     private readonly Dictionary<int, Border> _celdasTablero = new Dictionary<int, Border>();
     private IDisposable? _escuchaAvisos;
+    private TaskCompletionSource<bool>? _validacionTcs; // Variable para controlar la alerta personalizada
 
     private readonly FirebaseClient _fb = new FirebaseClient("https://bingov3-1ec3a-default-rtdb.europe-west1.firebasedatabase.app/");
 
@@ -37,7 +38,6 @@ public partial class MainPage : ContentPage
 
     private void IniciarEscuchaAvisos()
     {
-        // 1. IMPORTANTE: Cancelar cualquier escucha previa antes de empezar una nueva
         _escuchaAvisos?.Dispose();
 
         _escuchaAvisos = _fb.Child("Salas").Child(_idSala).Child("Avisos")
@@ -58,7 +58,8 @@ public partial class MainPage : ContentPage
                            ? $"🔥 ¡{nick} dice tener BINGO! ¿Es correcto?"
                            : $"⭐ {nick} dice tener LÍNEA. ¿Es correcta?";
 
-                       bool esValido = await this.DisplayAlert("VALIDACIÓN", textoAlerta, "SÍ", "NO");
+                       // Usamos la nueva alerta personalizada
+                       bool esValido = await MostrarValidacionPersonalizada(textoAlerta);
 
                        if (esValido)
                            await MostrarAnimacionVictoria(nick, premio);
@@ -127,7 +128,7 @@ public partial class MainPage : ContentPage
     private void BuildBoard()
     {
         BingoBoardGrid.Children.Clear();
-        _celdasTablero.Clear(); // 2. IMPORTANTE: Limpiar el diccionario para la nueva partida
+        _celdasTablero.Clear(); 
         for (int i = 1; i <= 90; i++)
         {
             var b = new Border
@@ -141,35 +142,29 @@ public partial class MainPage : ContentPage
         }
     }
 
-    // --- EVENTOS DE BOTONES ---
     private void OnCloseVictoryClicked(object sender, EventArgs e) { VictoryOverlay.IsVisible = false; _timer.Start(); }
 
     private void OnVictoryResetClicked(object sender, EventArgs e)
     {
         VictoryOverlay.IsVisible = false;
-        // Pasamos null para que OnReiniciarClicked sepa que viene de una victoria y no pida confirmación extra
         OnReiniciarClicked(null, EventArgs.Empty);
     }
 
     private async void OnReiniciarClicked(object? sender, EventArgs e)
     {
-        // Si el sender es el botón RESET de la UI, pedimos confirmación
         if (sender is Button b && b.Text == "RESET")
         {
-            bool confirmar = await this.DisplayAlert("RESET", "¿Nueva sala?", "SÍ", "NO");
+            bool confirmar = await MostrarValidacionPersonalizada("¿Seguro que quieres crear una nueva sala?");
             if (!confirmar) return;
         }
 
         _timer.Stop();
-        // Generar nueva ID
         _idSala = "SALA" + DateTime.Now.Ticks.ToString().Substring(10);
 
-        // Resetear variables lógicas
         _bombo = Enumerable.Range(1, 90).ToList();
         _ultimasBolas.Clear();
         _contadorBolas = 0;
 
-        // Resetear UI
         BallCounterLabel.Text = "Bolas: 0/90";
         CurrentNumberLabel.Text = "--";
         NotificationLabel.Text = "Esperando avisos...";
@@ -178,13 +173,11 @@ public partial class MainPage : ContentPage
         BuildBoard();
         await GenerarCodigoQR();
 
-        // 3. RECONECTAR LA ESCUCHA A LA NUEVA ID DE SALA
         IniciarEscuchaAvisos();
 
         QRModal.IsVisible = true;
     }
 
-    // El resto de funciones (GenerarCodigoQR, SetVel, CargarVoces...) se mantienen igual que antes
     private async Task GenerarCodigoQR()
     {
         string url = $"https://dpg210.github.io/bingo/?sala={_idSala}";
@@ -244,5 +237,27 @@ public partial class MainPage : ContentPage
             if (bola == n) b.Stroke = Color.FromArgb("#C648FF");
             BallHistoryContainer.Children.Add(b);
         }
+    }
+
+    // --- NUEVAS FUNCIONES PARA EL MODAL DE VALIDACIÓN ---
+    private Task<bool> MostrarValidacionPersonalizada(string mensaje)
+    {
+        ValidationMessage.Text = mensaje;
+        ValidationOverlay.IsVisible = true;
+        
+        _validacionTcs = new TaskCompletionSource<bool>();
+        return _validacionTcs.Task;
+    }
+
+    private void OnValidationYesClicked(object sender, EventArgs e)
+    {
+        ValidationOverlay.IsVisible = false;
+        _validacionTcs?.TrySetResult(true);
+    }
+
+    private void OnValidationNoClicked(object sender, EventArgs e)
+    {
+        ValidationOverlay.IsVisible = false;
+        _validacionTcs?.TrySetResult(false);
     }
 }
