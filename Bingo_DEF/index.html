@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Bingo Player</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+    <style>
+        :root { --dark: #1a1a2e; --accent: #e94560; --win: #27ae60; }
+        body { background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 10px; }
+        #login-screen, #setup-screen { display: flex; align-items: center; justify-content: center; min-height: 90vh; }
+        .login-box { background: #16213e; padding: 30px; border-radius: 20px; width: 85%; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #game-screen { display: none; }
+        input { padding: 15px; border-radius: 10px; border: none; width: 90%; margin-bottom: 20px; font-size: 1.1rem; text-align: center; background: #0f3460; color: white; }
+        .btn { border: none; padding: 15px; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; }
+        .btn-linea { background: var(--win); margin-bottom: 10px; }
+        .btn-bingo { background: var(--accent); }
+        .btn-secondary { background: #0f3460; }
+        .btn-small { width: auto; min-width: 70px; }
+        .btn-choice.active { background: var(--accent); }
+        .last-ball { background: white; color: var(--dark); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; margin: 15px auto; border: 4px solid var(--accent); box-shadow: 0 0 15px var(--accent); }
+        .section { background: rgba(255,255,255,0.06); padding: 14px; border-radius: 14px; margin-top: 14px; }
+        .choice-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .cartones-wrap { display: flex; flex-direction: column; gap: 16px; width: min(100%, 900px); margin: 0 auto; }
+        .carton-card { background: #ecf0f1; padding: 10px; border-radius: 10px; }
+        .fav-row { display: grid; grid-template-columns: 110px 1fr; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .fav-row input { width: 100%; margin-bottom: 0; box-sizing: border-box; }
+        .carton-checks { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; color: #c8d6e5; font-size: 0.95rem; }
+        .carton-checks label { display: inline-flex; align-items: center; gap: 6px; }
+        .carton-checks input { width: auto; margin: 0; }
+        .hidden { display: none !important; }
+
+        /* DISEÑO CARTÓN TRADICIONAL */
+        .grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; background: #2c3e50; padding: 5px; border-radius: 5px; }
+        .cell { background: white; aspect-ratio: 0.8; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; color: #333; border-radius: 4px; position: relative; cursor: pointer; }
+        .empty { background: #bdc3c7; cursor: default; }
+        .marked::after { content: "X"; position: absolute; color: rgba(233, 69, 96, 0.8); font-size: 2rem; }
+    </style>
+</head>
+<body>
+    <div id="login-screen">
+        <div class="login-box">
+            <h2 style="color: var(--accent)">BINGO</h2>
+            <input type="text" id="nick-input" placeholder="Tu Nick">
+            <button class="btn btn-bingo" onclick="entrar()">ENTRAR</button>
+        </div>
+    </div>
+
+    <div id="setup-screen" class="hidden">
+        <div class="login-box">
+            <h2 style="color: var(--accent); margin-top: 0;">CONFIGURAR PARTIDA</h2>
+            <p id="nick-label" style="margin-top: 0; color: #c8d6e5;"></p>
+
+            <div class="section">
+                <p style="margin-top: 0; color: #c8d6e5; font-weight: bold;">1. Elige cuántos cartones quieres</p>
+                <div class="choice-row">
+                    <button class="btn btn-secondary btn-small btn-choice" id="carton-btn-1" onclick="seleccionarCartones(1)">1</button>
+                    <button class="btn btn-secondary btn-small btn-choice" id="carton-btn-2" onclick="seleccionarCartones(2)">2</button>
+                    <button class="btn btn-secondary btn-small btn-choice" id="carton-btn-3" onclick="seleccionarCartones(3)">3</button>
+                </div>
+            </div>
+
+            <div id="favorites-section" class="section hidden">
+                <p style="margin-top: 0; color: #c8d6e5; font-weight: bold;">2. Ahora escribe 1 o 2 números favoritos y en qué cartones aparecerán</p>
+
+                <div class="fav-row">
+                    <input type="number" id="fav1-number" min="1" max="90" placeholder="Favorito 1">
+                    <div class="carton-checks">
+                        <label><input type="checkbox" id="fav1-c1">C1</label>
+                        <label><input type="checkbox" id="fav1-c2">C2</label>
+                        <label><input type="checkbox" id="fav1-c3">C3</label>
+                    </div>
+                </div>
+
+                <div class="fav-row">
+                    <input type="number" id="fav2-number" min="1" max="90" placeholder="Favorito 2">
+                    <div class="carton-checks">
+                        <label><input type="checkbox" id="fav2-c1">C1</label>
+                        <label><input type="checkbox" id="fav2-c2">C2</label>
+                        <label><input type="checkbox" id="fav2-c3">C3</label>
+                    </div>
+                </div>
+
+                <button class="btn btn-bingo" onclick="comenzarPartida()">JUGAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-screen">
+        <div style="display:flex; gap:10px; max-width:500px; margin:auto; margin-bottom:10px;">
+            <button class="btn btn-linea" onclick="cantar('LÍNEA')">LÍNEA</button>
+            <button class="btn btn-bingo" onclick="cantar('BINGO')">BINGO</button>
+        </div>
+        <div class="last-ball" id="last-ball">--</div>
+        <div class="cartones-wrap" id="cartones-container"></div>
+        <p id="info-player" style="color: #888; margin-top:15px;"></p>
+    </div>
+
+    <script>
+        const firebaseConfig = { databaseURL: "https://bingov3-1ec3a-default-rtdb.europe-west1.firebasedatabase.app/" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const sala = new URLSearchParams(window.location.search).get('sala') || "TEST";
+        let miNick = localStorage.getItem('bingo_nick') || "";
+        let numCartones = 0;
+        let favoritos = [];
+        let setupKey = "";
+
+        function buildSetupKey() {
+            return `bingo_setup_${sala}_${miNick}`;
+        }
+
+        function entrar() {
+            miNick = document.getElementById('nick-input').value.trim();
+            if (!miNick) return alert("Escribe un nick");
+            localStorage.setItem('bingo_nick', miNick);
+            setupKey = buildSetupKey();
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('setup-screen').classList.remove('hidden');
+            document.getElementById('nick-label').innerText = "Jugador: " + miNick;
+            cargarConfiguracionGuardada();
+        }
+
+        function cargarConfiguracionGuardada() {
+            const setup = leerSetupGuardado();
+            if (!setup) return;
+
+            if (setup.cartones > 0) {
+                seleccionarCartones(setup.cartones, true);
+            }
+
+            if (Array.isArray(setup.favoritos) && setup.favoritos.length > 0) {
+                cargarFavoritosEnUI(setup.favoritos);
+                favoritos = setup.favoritos;
+            }
+        }
+
+        function leerSetupGuardado() {
+            try {
+                const raw = localStorage.getItem(setupKey || buildSetupKey());
+                return raw ? JSON.parse(raw) : null;
+            } catch {
+                return null;
+            }
+        }
+
+        function guardarSetupGuardado(cartones, favoritosData) {
+            if (!miNick) return;
+            const payload = {
+                cartones,
+                favoritos: favoritosData
+            };
+            localStorage.setItem(setupKey || buildSetupKey(), JSON.stringify(payload));
+        }
+
+        function seleccionarCartones(cantidad, desdeRestauracion = false) {
+            numCartones = cantidad;
+            document.getElementById('favorites-section').classList.remove('hidden');
+            document.getElementById('favorites-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (!desdeRestauracion) document.getElementById('fav1-number').focus();
+
+            for (let i = 1; i <= 3; i++) {
+                const btn = document.getElementById(`carton-btn-${i}`);
+                btn.classList.toggle('active', i === cantidad);
+            }
+
+            actualizarCheckboxesFavoritos();
+            guardarSetupGuardado(numCartones, recolectarFavoritos(false));
+        }
+
+        function actualizarCheckboxesFavoritos() {
+            for (let i = 1; i <= 3; i++) {
+                const enabled = i <= numCartones;
+                [1, 2].forEach(fav => {
+                    const cb = document.getElementById(`fav${fav}-c${i}`);
+                    cb.disabled = !enabled;
+                    if (!enabled) cb.checked = false;
+                });
+            }
+        }
+
+        function cargarFavoritosEnUI(lista) {
+            const ordenados = [...lista].slice(0, 2);
+            if (ordenados[0]) {
+                document.getElementById('fav1-number').value = ordenados[0].numero ?? '';
+                [1,2,3].forEach(c => document.getElementById(`fav1-c${c}`).checked = (ordenados[0].cartons || []).includes(c));
+            }
+            if (ordenados[1]) {
+                document.getElementById('fav2-number').value = ordenados[1].numero ?? '';
+                [1,2,3].forEach(c => document.getElementById(`fav2-c${c}`).checked = (ordenados[1].cartons || []).includes(c));
+            }
+        }
+
+        function comenzarPartida() {
+            if (!numCartones) return alert("Elige cuántos cartones quieres");
+
+            favoritos = recolectarFavoritos(true);
+            if (favoritos.length === 0) {
+                alert("Escribe al menos 1 número favorito y selecciona en qué cartón aparecerá.");
+                return;
+            }
+
+            guardarSetupGuardado(numCartones, favoritos);
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('game-screen').style.display = 'block';
+            document.getElementById('info-player').innerText = `Jugador: ${miNick} | Cartones: ${numCartones}`;
+            init(numCartones, favoritos);
+        }
+
+        function recolectarFavoritos(estricto) {
+            const resultado = [];
+            for (let i = 1; i <= 2; i++) {
+                const input = document.getElementById(`fav${i}-number`).value.trim();
+                if (!input) continue;
+
+                const numero = parseInt(input, 10);
+                if (!Number.isInteger(numero) || numero < 1 || numero > 90) {
+                    if (estricto) alert(`El favorito ${i} no es válido`);
+                    if (estricto) throw new Error("Número favorito inválido");
+                    continue;
+                }
+
+                const cartons = [1, 2, 3].filter(c => {
+                    const cb = document.getElementById(`fav${i}-c${c}`);
+                    return !cb.disabled && cb.checked;
+                });
+
+                if (cartons.length === 0) {
+                    if (estricto) alert(`Selecciona al menos un cartón para el favorito ${i}`);
+                    if (estricto) throw new Error("Cartón favorito no seleccionado");
+                    continue;
+                }
+
+                resultado.push({ numero, cartons });
+            }
+
+            const unicos = [];
+            const seen = new Set();
+            for (const f of resultado) {
+                const key = `${f.numero}:${f.cartons.join(',')}`;
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    unicos.push(f);
+                }
+            }
+            return unicos;
+        }
+
+        function init(cantidad, favoritosConfig) {
+            const cont = document.getElementById('cartones-container');
+            cont.innerHTML = '';
+
+            const signature = favoritosConfig
+                .map(f => `${f.numero}-${f.cartons.join('')}`)
+                .join('_') || 'sin-favoritos';
+
+            for (let i = 0; i < cantidad; i++) {
+                const cartonIndex = i + 1;
+                const forced = favoritosConfig
+                    .filter(f => f.cartons.includes(cartonIndex))
+                    .map(f => f.numero);
+
+                const key = `bingo_v3_${sala}_${miNick}_${cantidad}_${signature}_${cartonIndex}`;
+                let matrix = JSON.parse(localStorage.getItem(key));
+
+                if (matrix) {
+                    ordenarColumnasAscendente(matrix);
+                    localStorage.setItem(key, JSON.stringify(matrix));
+                } else {
+                    matrix = generarNatural(key, forced);
+                }
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'carton-card';
+                wrapper.innerHTML = `<p style="color:#888; margin-top:0;">Cartón ${cartonIndex}</p>`;
+
+                const grid = document.createElement('div');
+                grid.className = 'grid';
+                wrapper.appendChild(grid);
+                cont.appendChild(wrapper);
+                render(matrix, grid, key);
+            }
+        }
+
+        function getColumnForNumber(n) {
+            if (n >= 1 && n <= 9) return 0;
+            if (n >= 10 && n <= 19) return 1;
+            if (n >= 20 && n <= 29) return 2;
+            if (n >= 30 && n <= 39) return 3;
+            if (n >= 40 && n <= 49) return 4;
+            if (n >= 50 && n <= 59) return 5;
+            if (n >= 60 && n <= 69) return 6;
+            if (n >= 70 && n <= 79) return 7;
+            return 8;
+        }
+
+        function shuffled(arr) {
+            return arr.sort(() => Math.random() - 0.5);
+        }
+
+        function ordenarColumnasAscendente(m) {
+            for (let c = 0; c < 9; c++) {
+                const posiciones = [];
+                const valores = [];
+
+                for (let r = 0; r < 3; r++) {
+                    if (m[r][c] !== null) {
+                        posiciones.push(r);
+                        valores.push(m[r][c].v);
+                    }
+                }
+
+                valores.sort((a, b) => a - b);
+                posiciones.sort((a, b) => a - b);
+
+                for (let i = 0; i < posiciones.length; i++) {
+                    m[posiciones[i]][c].v = valores[i];
+                }
+            }
+        }
+
+        function generarNatural(storageKey, forcedNumbers = []) {
+            const forcedUnique = [...new Set(forcedNumbers.filter(n => Number.isInteger(n) && n >= 1 && n <= 90))];
+
+            for (let attempt = 0; attempt < 250; attempt++) {
+                const m = Array.from({ length: 3 }, () => Array(9).fill(null));
+                const rowCounts = [0, 0, 0];
+                const columnCounts = Array(9).fill(0);
+                const pools = Array.from({ length: 9 }, (_, c) => {
+                    const min = c === 0 ? 1 : c * 10;
+                    const max = c === 8 ? 90 : (c * 10) + 9;
+                    const nums = [];
+                    for (let n = min; n <= max; n++) {
+                        if (!forcedUnique.includes(n)) nums.push(n);
+                    }
+                    return shuffled(nums);
+                });
+
+                let ok = true;
+
+                for (const n of forcedUnique) {
+                    const c = getColumnForNumber(n);
+                    const rows = [0, 1, 2].filter(r => rowCounts[r] < 5 && m[r][c] === null);
+                    if (rows.length === 0) { ok = false; break; }
+                    const row = rows[Math.floor(Math.random() * rows.length)];
+                    m[row][c] = { v: n, m: false };
+                    rowCounts[row]++;
+                    columnCounts[c]++;
+                }
+
+                if (!ok) continue;
+
+                for (let row = 0; row < 3; row++) {
+                    let safety = 0;
+                    while (rowCounts[row] < 5 && safety < 100) {
+                        safety++;
+                        const candidates = [];
+                        for (let c = 0; c < 9; c++) {
+                            if (m[row][c] === null && columnCounts[c] < 3 && pools[c].length > 0) {
+                                candidates.push(c);
+                            }
+                        }
+
+                        if (candidates.length === 0) { ok = false; break; }
+
+                        const c = candidates[Math.floor(Math.random() * candidates.length)];
+                        m[row][c] = { __pending: true };
+                        rowCounts[row]++;
+                        columnCounts[c]++;
+                    }
+                    if (!ok) break;
+                }
+
+                if (!ok) continue;
+
+                for (let c = 0; c < 9; c++) {
+                    const positions = [];
+                    for (let r = 0; r < 3; r++) {
+                        if (m[r][c] !== null) positions.push(r);
+                    }
+
+                    const targetCount = positions.length;
+                    if (targetCount === 0) continue;
+                    if (pools[c].length < targetCount - forcedUnique.filter(n => getColumnForNumber(n) === c).length) {
+                        ok = false;
+                        break;
+                    }
+
+                    for (const r of positions) {
+                        if (m[r][c].v !== undefined) continue;
+                        if (pools[c].length === 0) { ok = false; break; }
+                        m[r][c] = { v: pools[c].shift(), m: false };
+                    }
+                    if (!ok) break;
+                }
+
+                if (!ok) continue;
+
+                ordenarColumnasAscendente(m);
+                localStorage.setItem(storageKey, JSON.stringify(m));
+                return m;
+            }
+
+            throw new Error('No se pudo generar el cartón con los números favoritos seleccionados.');
+        }
+
+        function render(m, cont, storageKey) {
+            cont.innerHTML = '';
+            m.forEach((fila) => fila.forEach((celda) => {
+                const div = document.createElement('div');
+                div.className = celda ? `cell ${celda.m ? 'marked' : ''}` : 'cell empty';
+                if (celda) {
+                    div.innerText = celda.v;
+                    div.onclick = () => { celda.m = !celda.m; localStorage.setItem(storageKey, JSON.stringify(m)); render(m, cont, storageKey); };
+                }
+                cont.appendChild(div);
+            }));
+        }
+
+        function cantar(tipo) {
+            db.ref(`Salas/${sala}/Avisos`).push({ jugador: miNick, tipo: tipo, t: Date.now() });
+            alert("¡" + tipo + " enviada!");
+        }
+
+        db.ref(`Salas/${sala}/Ultima`).on('value', snap => {
+            if (snap.val()) document.getElementById('last-ball').innerText = snap.val();
+        });
+    </script>
+</body>
+</html>

@@ -18,6 +18,7 @@ public partial class MainPage : ContentPage
     private readonly Dictionary<int, Border> _celdasTablero = new Dictionary<int, Border>();
     private IDisposable? _escuchaAvisos;
     private TaskCompletionSource<bool>? _validacionTcs; // Variable para controlar la alerta personalizada
+    private bool _isCompactLayout;
 
     private readonly FirebaseClient _fb = new FirebaseClient("https://bingov3-1ec3a-default-rtdb.europe-west1.firebasedatabase.app/");
 
@@ -34,6 +35,57 @@ public partial class MainPage : ContentPage
         BuildBoard();
         _ = CargarVoces();
         IniciarEscuchaAvisos();
+
+        SizeChanged += (_, _) => AplicarLayoutResponsive();
+        Loaded += (_, _) => AplicarLayoutResponsive();
+    }
+
+    private void AplicarLayoutResponsive()
+    {
+        if (Width <= 0)
+            return;
+
+        bool compact = Width < 950;
+        double boardHeight = compact
+            ? Math.Max(300, Math.Min(420, Width * 0.9))
+            : 450;
+
+        BingoBoardGrid.HeightRequest = boardHeight;
+
+        if (_isCompactLayout == compact)
+            return;
+
+        _isCompactLayout = compact;
+
+        MainContentGrid.ColumnDefinitions.Clear();
+        MainContentGrid.RowDefinitions.Clear();
+
+        if (compact)
+        {
+            MainContentGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+            MainContentGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            MainContentGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            Grid.SetColumn(LeftPanel, 0);
+            Grid.SetRow(LeftPanel, 0);
+            Grid.SetColumn(RightPanel, 0);
+            Grid.SetRow(RightPanel, 1);
+
+            MainScroll.Orientation = ScrollOrientation.Vertical;
+        }
+        else
+        {
+            MainContentGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = 320 });
+            MainContentGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+            MainContentGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Star });
+
+            Grid.SetColumn(LeftPanel, 0);
+            Grid.SetRow(LeftPanel, 0);
+            Grid.SetColumn(RightPanel, 1);
+            Grid.SetRow(RightPanel, 0);
+
+            MainScroll.Orientation = ScrollOrientation.Vertical;
+        }
     }
 
     private void IniciarEscuchaAvisos()

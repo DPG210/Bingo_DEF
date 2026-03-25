@@ -1,18 +1,68 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="BingoTop.JugadorPage">
+             x:Class="BingoTop.JugadorPage"
+             BackgroundColor="#1a1a2e">
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#0f0c29" Offset="0.1" />
             <GradientStop Color="#302b63" Offset="0.5" />
         </LinearGradientBrush>
     </ContentPage.Background>
-    <VerticalStackLayout Padding="30" Spacing="25" VerticalOptions="Center">
-        <Label x:Name="SalaLabel" Text="MI CARTÓN" TextColor="Gold" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center"/>
-        <Border BackgroundColor="#CC000000" StrokeShape="RoundRectangle 20" Padding="15">
-            <Grid x:Name="CartonGrid" RowDefinitions="*,*,*" ColumnDefinitions="*,*,*,*,*" HeightRequest="300" ColumnSpacing="10" RowSpacing="10"/>
-        </Border>
-        <Button Text="¡BINGO!" Clicked="OnCantarBingo" BackgroundColor="#27ae60" HeightRequest="60" CornerRadius="30" FontAttributes="Bold"/>
-    </VerticalStackLayout>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="18">
+            <Label Text="BINGO" TextColor="Gold" FontSize="30" FontAttributes="Bold" HorizontalOptions="Center" />
+            <Label x:Name="SalaLabel" Text="SALA" TextColor="#c8d6e5" HorizontalOptions="Center" />
+
+            <Border BackgroundColor="#CC000000" StrokeShape="RoundRectangle 20" Padding="16">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="1. Nick" TextColor="#c8d6e5" FontAttributes="Bold" />
+                    <Entry x:Name="NickEntry" Placeholder="Escribe tu nick" TextColor="White" PlaceholderColor="#B0B0B0" />
+                    <Button Text="CONFIRMAR NICK" Clicked="OnConfirmarNickClicked" BackgroundColor="#3498db" HeightRequest="50" CornerRadius="12" FontAttributes="Bold" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border x:Name="CartonesStep" IsVisible="False" BackgroundColor="#CC000000" StrokeShape="RoundRectangle 20" Padding="16">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="2. Cuántos cartones quieres" TextColor="#c8d6e5" FontAttributes="Bold" />
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Button x:Name="BtnCarton1" Text="1" Clicked="OnSeleccionar1Carton" WidthRequest="70" BackgroundColor="#1E5B6E" TextColor="White" FontAttributes="Bold" />
+                        <Button x:Name="BtnCarton2" Text="2" Clicked="OnSeleccionar2Cartones" WidthRequest="70" BackgroundColor="#1E5B6E" TextColor="White" FontAttributes="Bold" />
+                        <Button x:Name="BtnCarton3" Text="3" Clicked="OnSeleccionar3Cartones" WidthRequest="70" BackgroundColor="#1E5B6E" TextColor="White" FontAttributes="Bold" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border x:Name="FavoritosStep" IsVisible="False" BackgroundColor="#CC000000" StrokeShape="RoundRectangle 20" Padding="16">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="3. Números favoritos y cartones" TextColor="#c8d6e5" FontAttributes="Bold" />
+
+                    <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="90,*" RowSpacing="10" ColumnSpacing="10">
+                        <Label Text="Fav. 1" TextColor="White" VerticalTextAlignment="Center" />
+                        <Entry x:Name="Fav1Number" Grid.Column="1" Placeholder="1 - 90" Keyboard="Numeric" TextColor="White" PlaceholderColor="#B0B0B0" />
+                        <HorizontalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="12" HorizontalOptions="Center">
+                            <CheckBox x:Name="Fav1C1" /> <Label Text="C1" TextColor="White" VerticalTextAlignment="Center" />
+                            <CheckBox x:Name="Fav1C2" /> <Label Text="C2" TextColor="White" VerticalTextAlignment="Center" />
+                            <CheckBox x:Name="Fav1C3" /> <Label Text="C3" TextColor="White" VerticalTextAlignment="Center" />
+                        </HorizontalStackLayout>
+                    </Grid>
+
+                    <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="90,*" RowSpacing="10" ColumnSpacing="10">
+                        <Label Text="Fav. 2" TextColor="White" VerticalTextAlignment="Center" />
+                        <Entry x:Name="Fav2Number" Grid.Column="1" Placeholder="1 - 90" Keyboard="Numeric" TextColor="White" PlaceholderColor="#B0B0B0" />
+                        <HorizontalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="12" HorizontalOptions="Center">
+                            <CheckBox x:Name="Fav2C1" /> <Label Text="C1" TextColor="White" VerticalTextAlignment="Center" />
+                            <CheckBox x:Name="Fav2C2" /> <Label Text="C2" TextColor="White" VerticalTextAlignment="Center" />
+                            <CheckBox x:Name="Fav2C3" /> <Label Text="C3" TextColor="White" VerticalTextAlignment="Center" />
+                        </HorizontalStackLayout>
+                    </Grid>
+
+                    <Button Text="JUGAR" Clicked="OnJugarClicked" BackgroundColor="#e94560" FontAttributes="Bold" />
+                </VerticalStackLayout>
+            </Border>
+
+            <VerticalStackLayout x:Name="CartonesContainer" Spacing="15" />
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
