@@ -8,7 +8,7 @@
 
              x:Name="RootPage"
 
-             BackgroundColor="#0B3948">
+             BackgroundColor="#081A22">
 
 
 
@@ -20,7 +20,9 @@
 
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
 
-                    <GradientStop Color="#0B3948" Offset="0.1" />
+                    <GradientStop Color="#081A22" Offset="0.0" />
+
+                    <GradientStop Color="#0B3948" Offset="0.55" />
 
                     <GradientStop Color="#164E5F" Offset="1.0" />
 
@@ -58,19 +60,33 @@
 
                 <VerticalStackLayout x:Name="LeftPanel" Grid.Column="0" Grid.Row="0" Spacing="15">
 
-                    <Border Stroke="#33FFFFFF" StrokeThickness="1" StrokeShape="RoundRectangle 20" BackgroundColor="#22FFFFFF" Padding="20">
+                    <Border StrokeThickness="1" StrokeShape="RoundRectangle 20" Padding="20">
+
+                        <Border.Stroke>
+
+                            <SolidColorBrush Color="#334B6D7C" />
+
+                        </Border.Stroke>
+
+                        <Border.Background>
+
+                            <SolidColorBrush Color="#1A2230" />
+
+                        </Border.Background>
+
+
 
                         <VerticalStackLayout HorizontalOptions="Center" Spacing="10">
 
-                            <Label Text="NÚMERO ACTUAL" TextColor="#A3CED9" FontAttributes="Bold" HorizontalOptions="Center"/>
+                            <Label Text="NÚMERO ACTUAL" TextColor="#A7D8E8" FontAttributes="Bold" HorizontalOptions="Center"/>
 
-                            <Border WidthRequest="160" HeightRequest="160" StrokeShape="RoundRectangle 80" BackgroundColor="White">
+                            <Border WidthRequest="160" HeightRequest="160" StrokeShape="RoundRectangle 80" BackgroundColor="#F7FBFF">
 
                                 <Label x:Name="CurrentNumberLabel" Text="--" FontSize="90" TextColor="#0B3948" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
 
                             </Border>
 
-                            <Label x:Name="BallCounterLabel" Text="Bolas: 0/90" TextColor="#48CAE4" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center" Margin="0,10,0,0"/>
+                            <Label x:Name="BallCounterLabel" Text="Bolas: 0/90" TextColor="#5CD1E6" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center" Margin="0,10,0,0"/>
 
                         </VerticalStackLayout>
 
@@ -78,13 +94,27 @@
 
 
 
-                    <Border x:Name="NoticeBorder" Stroke="#33FFFFFF" StrokeThickness="1" StrokeShape="RoundRectangle 20" BackgroundColor="#22FFFFFF" Padding="15" HeightRequest="100">
+                    <Border x:Name="NoticeBorder" StrokeThickness="1" StrokeShape="RoundRectangle 20" Padding="15" HeightRequest="100">
+
+                        <Border.Stroke>
+
+                            <SolidColorBrush Color="#334B6D7C" />
+
+                        </Border.Stroke>
+
+                        <Border.Background>
+
+                            <SolidColorBrush Color="#1A2230" />
+
+                        </Border.Background>
+
+
 
                         <VerticalStackLayout VerticalOptions="Center">
 
-                            <Label Text="ESTADO DEL JUEGO" TextColor="#48CAE4" FontSize="12" HorizontalOptions="Center" FontAttributes="Bold"/>
+                            <Label Text="ESTADO DEL JUEGO" TextColor="#5CD1E6" FontSize="12" HorizontalOptions="Center" FontAttributes="Bold"/>
 
-                            <Label x:Name="NotificationLabel" Text="Esperando avisos..." TextColor="White" FontSize="16" HorizontalOptions="Center" HorizontalTextAlignment="Center" Margin="0,5,0,0"/>
+                            <Label x:Name="NotificationLabel" Text="Esperando avisos..." TextColor="#F3F7FA" FontSize="16" HorizontalOptions="Center" HorizontalTextAlignment="Center" Margin="0,5,0,0"/>
 
                         </VerticalStackLayout>
 
@@ -92,7 +122,21 @@
 
 
 
-                    <Border Stroke="#33FFFFFF" BackgroundColor="#22FFFFFF" Padding="15" StrokeShape="RoundRectangle 20">
+                    <Border StrokeShape="RoundRectangle 20" Padding="15">
+
+                        <Border.Stroke>
+
+                            <SolidColorBrush Color="#334B6D7C" />
+
+                        </Border.Stroke>
+
+                        <Border.Background>
+
+                            <SolidColorBrush Color="#1A2230" />
+
+                        </Border.Background>
+
+
 
                         <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto" RowSpacing="10" ColumnSpacing="10">
 
@@ -114,7 +158,21 @@
 
 
 
-                    <Border Stroke="#33FFFFFF" BackgroundColor="#22FFFFFF" Padding="15" StrokeShape="RoundRectangle 20">
+                    <Border StrokeShape="RoundRectangle 20" Padding="15">
+
+                        <Border.Stroke>
+
+                            <SolidColorBrush Color="#334B6D7C" />
+
+                        </Border.Stroke>
+
+                        <Border.Background>
+
+                            <SolidColorBrush Color="#1A2230" />
+
+                        </Border.Background>
+
+
 
                         <VerticalStackLayout Spacing="10">
 
@@ -132,11 +190,25 @@
 
                 <VerticalStackLayout x:Name="RightPanel" Grid.Column="1" Grid.Row="0" Spacing="15">
 
-                    <Border x:Name="BoardBorder" Stroke="#33FFFFFF" BackgroundColor="#22FFFFFF" Padding="20" StrokeShape="RoundRectangle 25">
+                    <Border x:Name="BoardBorder" StrokeShape="RoundRectangle 25" Padding="20">
+
+                        <Border.Stroke>
+
+                            <SolidColorBrush Color="#224B6D7C" />
+
+                        </Border.Stroke>
+
+                        <Border.Background>
+
+                            <SolidColorBrush Color="#081420" />
+
+                        </Border.Background>
+
+
 
                         <VerticalStackLayout Spacing="15">
 
-                            <Label Text="TABLERO GENERAL" TextColor="White" FontSize="22" HorizontalOptions="Center" FontAttributes="Bold"/>
+                            <Label Text="TABLERO GENERAL" TextColor="#F3F7FA" FontSize="22" HorizontalOptions="Center" FontAttributes="Bold"/>
 
                             <Grid x:Name="BingoBoardGrid" RowDefinitions="*,*,*,*,*,*,*,*,*" ColumnDefinitions="*,*,*,*,*,*,*,*,*,*" ColumnSpacing="6" RowSpacing="6" HeightRequest="450" />
 
@@ -144,7 +216,13 @@
 
                     </Border>
 
-                    <Border StrokeShape="RoundRectangle 15" BackgroundColor="#11FFFFFF" HeightRequest="90" Padding="10">
+                    <Border StrokeShape="RoundRectangle 15" HeightRequest="90" Padding="10">
+
+                        <Border.Background>
+
+                            <SolidColorBrush Color="#10222E" />
+
+                        </Border.Background>
 
                         <HorizontalStackLayout x:Name="BallHistoryContainer" Spacing="15" HorizontalOptions="Center" VerticalOptions="Center"/>
 
@@ -158,7 +236,7 @@
 
 
 
-        <Grid x:Name="VictoryOverlay" IsVisible="False" BackgroundColor="#EE0B3948">
+        <Grid x:Name="VictoryOverlay" IsVisible="False" BackgroundColor="#EE081A22">
 
             <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="20">
 
