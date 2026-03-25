@@ -151,6 +151,5 @@
                 </VerticalStackLayout>
             </Border>
         </Grid>
-
     </Grid>
 </ContentPage>
