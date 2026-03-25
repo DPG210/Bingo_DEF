@@ -9,17 +9,17 @@
         <BoxView>
             <BoxView.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#081A22" Offset="0.0" />
-                    <GradientStop Color="#0B3948" Offset="0.55" />
-                    <GradientStop Color="#164E5F" Offset="1.0" />
+                    <GradientStop Color="#06131A" Offset="0.0" />
+                    <GradientStop Color="#0B3948" Offset="0.5" />
+                    <GradientStop Color="#173F52" Offset="1.0" />
                 </LinearGradientBrush>
             </BoxView.Background>
         </BoxView>
 
         <ScrollView x:Name="MainScroll" Orientation="Vertical">
-            <Grid x:Name="MainContentGrid" Padding="20" ColumnSpacing="20" RowSpacing="20">
+            <Grid x:Name="MainContentGrid" Padding="24" ColumnSpacing="24" RowSpacing="24">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="320" />
+                    <ColumnDefinition Width="330" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
@@ -27,85 +27,128 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <VerticalStackLayout x:Name="LeftPanel" Grid.Column="0" Grid.Row="0" Spacing="15">
-                    <Border StrokeThickness="1" StrokeShape="RoundRectangle 20" Padding="20">
+                <VerticalStackLayout x:Name="LeftPanel" Grid.Column="0" Grid.Row="0" Spacing="16">
+                    <Border StrokeThickness="1" StrokeShape="RoundRectangle 26" Padding="22">
                         <Border.Stroke>
-                            <SolidColorBrush Color="#334B6D7C" />
+                            <SolidColorBrush Color="#406C8A98" />
                         </Border.Stroke>
                         <Border.Background>
-                            <SolidColorBrush Color="#1A2230" />
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#18212D" Offset="0.0" />
+                                <GradientStop Color="#111B26" Offset="1.0" />
+                            </LinearGradientBrush>
                         </Border.Background>
-                        <VerticalStackLayout HorizontalOptions="Center" Spacing="10">
-                            <Label Text="NÚMERO ACTUAL" TextColor="#A7D8E8" FontAttributes="Bold" HorizontalOptions="Center"/>
-                            <Border WidthRequest="160" HeightRequest="160" StrokeShape="RoundRectangle 80" BackgroundColor="#F7FBFF">
-                                <Label x:Name="CurrentNumberLabel" Text="--" FontSize="90" TextColor="#0B3948" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Border.Shadow>
+                            <Shadow Brush="#000000" Offset="0,10" Radius="18" Opacity="0.35" />
+                        </Border.Shadow>
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="12">
+                            <Label Text="NÚMERO ACTUAL" TextColor="#A7D8E8" FontSize="12" FontAttributes="Bold" HorizontalOptions="Center"/>
+                            <Border WidthRequest="170" HeightRequest="170" StrokeShape="RoundRectangle 85" BackgroundColor="#F7FBFF">
+                                <Border.Shadow>
+                                    <Shadow Brush="#5CD1E6" Offset="0,6" Radius="18" Opacity="0.35" />
+                                </Border.Shadow>
+                                <Label x:Name="CurrentNumberLabel" Text="--" FontSize="92" TextColor="#0B3948" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
                             </Border>
-                            <Label x:Name="BallCounterLabel" Text="Bolas: 0/90" TextColor="#5CD1E6" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center" Margin="0,10,0,0"/>
+                            <Label x:Name="BallCounterLabel" Text="Bolas: 0/90" TextColor="#5CD1E6" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center" Margin="0,6,0,0"/>
                         </VerticalStackLayout>
                     </Border>
 
-                    <Border x:Name="NoticeBorder" StrokeThickness="1" StrokeShape="RoundRectangle 20" Padding="15" HeightRequest="100">
+                    <Border x:Name="NoticeBorder" StrokeThickness="1" StrokeShape="RoundRectangle 22" Padding="16" HeightRequest="140">
                         <Border.Stroke>
-                            <SolidColorBrush Color="#334B6D7C" />
+                            <SolidColorBrush Color="#406C8A98" />
                         </Border.Stroke>
                         <Border.Background>
-                            <SolidColorBrush Color="#1A2230" />
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#17222D" Offset="0.0" />
+                                <GradientStop Color="#111A24" Offset="1.0" />
+                            </LinearGradientBrush>
                         </Border.Background>
-                        <VerticalStackLayout VerticalOptions="Center">
+                        <Border.Shadow>
+                            <Shadow Brush="#000000" Offset="0,8" Radius="16" Opacity="0.28" />
+                        </Border.Shadow>
+                        <VerticalStackLayout VerticalOptions="Center" Spacing="6">
                             <Label Text="ESTADO DEL JUEGO" TextColor="#5CD1E6" FontSize="12" HorizontalOptions="Center" FontAttributes="Bold"/>
-                            <Label x:Name="NotificationLabel" Text="Esperando avisos..." TextColor="#F3F7FA" FontSize="16" HorizontalOptions="Center" HorizontalTextAlignment="Center" Margin="0,5,0,0"/>
+                            <Label x:Name="NotificationLabel" Text="Esperando avisos..." TextColor="#F3F7FA" FontSize="16" HorizontalOptions="Center" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" MaxLines="3" />
+                            <Label x:Name="LineaStatusLabel" Text="" TextColor="#FFD700" FontSize="12" FontAttributes="Bold" HorizontalOptions="Center" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" MaxLines="2" IsVisible="False" Margin="0,4,0,0"/>
                         </VerticalStackLayout>
                     </Border>
 
-                    <Border StrokeThickness="1" StrokeShape="RoundRectangle 20" Padding="15">
+                    <Border StrokeThickness="1" StrokeShape="RoundRectangle 22" Padding="16">
                         <Border.Stroke>
-                            <SolidColorBrush Color="#334B6D7C" />
+                            <SolidColorBrush Color="#406C8A98" />
                         </Border.Stroke>
                         <Border.Background>
-                            <SolidColorBrush Color="#1A2230" />
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#17222D" Offset="0.0" />
+                                <GradientStop Color="#111A24" Offset="1.0" />
+                            </LinearGradientBrush>
                         </Border.Background>
-                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto" RowSpacing="10" ColumnSpacing="10">
-                            <Button Grid.Row="0" Grid.Column="0" Text="INICIAR" BackgroundColor="#00D27B" Clicked="OnStartClicked" FontAttributes="Bold"/>
-                            <Button Grid.Row="0" Grid.Column="1" Text="PAUSA" BackgroundColor="#00A3FF" Clicked="OnPauseClicked" FontAttributes="Bold"/>
-                            <Button Grid.Row="0" Grid.Column="2" Text="RESET" BackgroundColor="#FF4B4B" Clicked="OnReiniciarClicked" FontAttributes="Bold"/>
-                            <Button x:Name="BtnVel1" Grid.Row="1" Grid.Column="0" Text="x1" Clicked="SetVel1" BackgroundColor="#C648FF"/>
-                            <Button x:Name="BtnVel1_5" Grid.Row="1" Grid.Column="1" Text="x1.5" Clicked="SetVel1_5" BackgroundColor="#1E5B6E"/>
-                            <Button x:Name="BtnVel2" Grid.Row="1" Grid.Column="2" Text="x2" Clicked="SetVel2" BackgroundColor="#1E5B6E"/>
+                        <Border.Shadow>
+                            <Shadow Brush="#000000" Offset="0,8" Radius="16" Opacity="0.28" />
+                        </Border.Shadow>
+                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto" RowSpacing="12" ColumnSpacing="10">
+                            <Button Grid.Row="0" Grid.Column="0" Text="INICIAR" BackgroundColor="#00D27B" Clicked="OnStartClicked" FontAttributes="Bold" CornerRadius="14" HeightRequest="46"/>
+                            <Button Grid.Row="0" Grid.Column="1" Text="PAUSA" BackgroundColor="#00A3FF" Clicked="OnPauseClicked" FontAttributes="Bold" CornerRadius="14" HeightRequest="46"/>
+                            <Button Grid.Row="0" Grid.Column="2" Text="RESET" BackgroundColor="#FF4B4B" Clicked="OnReiniciarClicked" FontAttributes="Bold" CornerRadius="14" HeightRequest="46"/>
+                            <Button x:Name="BtnVel1" Grid.Row="1" Grid.Column="0" Text="x1" Clicked="SetVel1" BackgroundColor="#C648FF" CornerRadius="14" HeightRequest="40"/>
+                            <Button x:Name="BtnVel1_5" Grid.Row="1" Grid.Column="1" Text="x1.5" Clicked="SetVel1_5" BackgroundColor="#1E5B6E" CornerRadius="14" HeightRequest="40"/>
+                            <Button x:Name="BtnVel2" Grid.Row="1" Grid.Column="2" Text="x2" Clicked="SetVel2" BackgroundColor="#1E5B6E" CornerRadius="14" HeightRequest="40"/>
                         </Grid>
                     </Border>
 
-                    <Border StrokeThickness="1" StrokeShape="RoundRectangle 20" Padding="15">
+                    <Border StrokeThickness="1" StrokeShape="RoundRectangle 22" Padding="16">
                         <Border.Stroke>
-                            <SolidColorBrush Color="#334B6D7C" />
+                            <SolidColorBrush Color="#406C8A98" />
                         </Border.Stroke>
                         <Border.Background>
-                            <SolidColorBrush Color="#1A2230" />
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#17222D" Offset="0.0" />
+                                <GradientStop Color="#111A24" Offset="1.0" />
+                            </LinearGradientBrush>
                         </Border.Background>
+                        <Border.Shadow>
+                            <Shadow Brush="#000000" Offset="0,8" Radius="16" Opacity="0.28" />
+                        </Border.Shadow>
                         <VerticalStackLayout Spacing="10">
-                            <Picker x:Name="VoicePicker" Title="Voz del Cantor" TextColor="White" TitleColor="#A3CED9"/>
-                            <Button Text="GENERAR QR" Clicked="OnGenerateQRClicked" BackgroundColor="#C648FF" FontAttributes="Bold"/>
+                            <Picker x:Name="VoicePicker" Title="Voz del Cantor" TextColor="White" TitleColor="#A3CED9" BackgroundColor="#0E1A24"/>
+                            <Button Text="GENERAR QR" Clicked="OnGenerateQRClicked" BackgroundColor="#C648FF" FontAttributes="Bold" CornerRadius="14" HeightRequest="46"/>
                         </VerticalStackLayout>
                     </Border>
                 </VerticalStackLayout>
 
-                <VerticalStackLayout x:Name="RightPanel" Grid.Column="1" Grid.Row="0" Spacing="15">
-                    <Border x:Name="BoardBorder" StrokeThickness="1" StrokeShape="RoundRectangle 25" Padding="20">
+                <VerticalStackLayout x:Name="RightPanel" Grid.Column="1" Grid.Row="0" Spacing="16">
+                    <Border x:Name="BoardBorder" StrokeThickness="1" StrokeShape="RoundRectangle 28" Padding="22">
                         <Border.Stroke>
-                            <SolidColorBrush Color="#224B6D7C" />
+                            <SolidColorBrush Color="#2F6C8A98" />
                         </Border.Stroke>
                         <Border.Background>
-                            <SolidColorBrush Color="#081420" />
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#0D1822" Offset="0.0" />
+                                <GradientStop Color="#08131B" Offset="1.0" />
+                            </LinearGradientBrush>
                         </Border.Background>
+                        <Border.Shadow>
+                            <Shadow Brush="#000000" Offset="0,12" Radius="22" Opacity="0.35" />
+                        </Border.Shadow>
                         <VerticalStackLayout Spacing="15">
                             <Label Text="TABLERO GENERAL" TextColor="#F3F7FA" FontSize="22" HorizontalOptions="Center" FontAttributes="Bold"/>
                             <Grid x:Name="BingoBoardGrid" RowDefinitions="*,*,*,*,*,*,*,*,*" ColumnDefinitions="*,*,*,*,*,*,*,*,*,*" ColumnSpacing="6" RowSpacing="6" HeightRequest="450" />
                         </VerticalStackLayout>
                     </Border>
 
-                    <Border StrokeShape="RoundRectangle 15" HeightRequest="90" Padding="10">
+                    <Border StrokeShape="RoundRectangle 18" HeightRequest="96" Padding="12">
                         <Border.Background>
-                            <SolidColorBrush Color="#10222E" />
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#10222E" Offset="0.0" />
+                                <GradientStop Color="#0C1821" Offset="1.0" />
+                            </LinearGradientBrush>
                         </Border.Background>
+                        <Border.Stroke>
+                            <SolidColorBrush Color="#2F6C8A98" />
+                        </Border.Stroke>
+                        <Border.Shadow>
+                            <Shadow Brush="#000000" Offset="0,8" Radius="14" Opacity="0.25" />
+                        </Border.Shadow>
                         <HorizontalStackLayout x:Name="BallHistoryContainer" Spacing="15" HorizontalOptions="Center" VerticalOptions="Center"/>
                     </Border>
                 </VerticalStackLayout>
@@ -113,22 +156,25 @@
         </ScrollView>
 
         <Grid x:Name="VictoryOverlay" IsVisible="False" BackgroundColor="#EE081A22">
-            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="20">
+            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="20" Padding="24">
                 <Label x:Name="VictoryEmoji" Text="🏆" FontSize="100" HorizontalOptions="Center"/>
-                <Label x:Name="VictoryTitle" Text="¡TENEMOS GANADOR!" TextColor="#C648FF" FontSize="40" FontAttributes="Bold" HorizontalOptions="Center"/>
-                <Label x:Name="VictoryMessage" Text="Nickname ha ganado" TextColor="White" FontSize="28" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
+                <Label x:Name="VictoryTitle" Text="¡TENEMOS GANADOR!" TextColor="#C648FF" FontSize="40" FontAttributes="Bold" HorizontalOptions="Center" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" MaxLines="2"/>
+                <Label x:Name="VictoryMessage" Text="Nickname ha ganado" TextColor="White" FontSize="28" HorizontalOptions="Center" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" MaxLines="3"/>
                 <HorizontalStackLayout Spacing="20" HorizontalOptions="Center" Margin="0,30,0,0">
-                    <Button x:Name="BtnSeguirPartida" Text="SEGUIR JUGANDO" Clicked="OnCloseVictoryClicked" BackgroundColor="#1E5B6E" FontAttributes="Bold" WidthRequest="200"/>
-                    <Button x:Name="BtnNuevaPartida" Text="NUEVA PARTIDA" Clicked="OnVictoryResetClicked" BackgroundColor="#00D27B" FontAttributes="Bold" WidthRequest="200"/>
+                    <Button x:Name="BtnSeguirPartida" Text="SEGUIR JUGANDO" Clicked="OnCloseVictoryClicked" BackgroundColor="#1E5B6E" FontAttributes="Bold" WidthRequest="200" CornerRadius="14"/>
+                    <Button x:Name="BtnNuevaPartida" Text="NUEVA PARTIDA" Clicked="OnVictoryResetClicked" BackgroundColor="#00D27B" FontAttributes="Bold" WidthRequest="200" CornerRadius="14"/>
                 </HorizontalStackLayout>
             </VerticalStackLayout>
         </Grid>
 
         <Grid x:Name="QRModal" IsVisible="False" BackgroundColor="#CC000000">
-            <Border BackgroundColor="White" Padding="30" HorizontalOptions="Center" VerticalOptions="Center" StrokeShape="RoundRectangle 30">
+            <Border BackgroundColor="#F7FBFF" Padding="30" HorizontalOptions="Center" VerticalOptions="Center" StrokeShape="RoundRectangle 30">
+                <Border.Shadow>
+                    <Shadow Brush="#000000" Offset="0,14" Radius="22" Opacity="0.35" />
+                </Border.Shadow>
                 <VerticalStackLayout Spacing="20">
                     <Image x:Name="QRCodeImage" WidthRequest="300" HeightRequest="300"/>
-                    <Button Text="CERRAR" Clicked="OnCloseQRClicked" BackgroundColor="#0B3948" TextColor="White"/>
+                    <Button Text="CERRAR" Clicked="OnCloseQRClicked" BackgroundColor="#0B3948" TextColor="White" CornerRadius="14"/>
                 </VerticalStackLayout>
             </Border>
         </Grid>
@@ -142,11 +188,11 @@
                 </Border.Shadow>
 
                 <VerticalStackLayout Spacing="15">
-                    <Label Text="⚠️ VALIDACIÓN REQUERIDA" TextColor="#FFD700" FontAttributes="Bold" FontSize="20" HorizontalOptions="Center"/>
-                    <Label x:Name="ValidationMessage" Text="¿Es correcto?" TextColor="White" FontSize="18" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
+                    <Label Text="⚠️ VALIDACIÓN REQUERIDA" TextColor="#FFD700" FontAttributes="Bold" FontSize="20" HorizontalOptions="Center" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" MaxLines="2"/>
+                    <Label x:Name="ValidationMessage" Text="¿Es correcto?" TextColor="White" FontSize="18" HorizontalOptions="Center" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" MaxLines="4"/>
                     <HorizontalStackLayout Spacing="20" HorizontalOptions="Center" Margin="0,10,0,0">
-                        <Button Text="SÍ" Clicked="OnValidationYesClicked" BackgroundColor="#00D27B" FontAttributes="Bold" WidthRequest="150" TextColor="White"/>
-                        <Button Text="NO" Clicked="OnValidationNoClicked" BackgroundColor="#FF4B4B" FontAttributes="Bold" WidthRequest="150" TextColor="White"/>
+                        <Button Text="SÍ" Clicked="OnValidationYesClicked" BackgroundColor="#00D27B" FontAttributes="Bold" WidthRequest="150" TextColor="White" CornerRadius="14"/>
+                        <Button Text="NO" Clicked="OnValidationNoClicked" BackgroundColor="#FF4B4B" FontAttributes="Bold" WidthRequest="150" TextColor="White" CornerRadius="14"/>
                     </HorizontalStackLayout>
                 </VerticalStackLayout>
             </Border>

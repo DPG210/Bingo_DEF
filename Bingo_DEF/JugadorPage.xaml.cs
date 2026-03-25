@@ -55,12 +55,6 @@ public partial class JugadorPage : ContentPage
         _favoritos.Clear();
         _favoritos.AddRange(LeerFavoritos());
 
-        if (_favoritos.Count == 0)
-        {
-            await DisplayAlert("Favoritos", "Escribe al menos 1 número favorito y selecciónalo en un cartón.", "OK");
-            return;
-        }
-
         GuardarConfiguracion();
         GenerarCartones();
     }

@@ -7,35 +7,231 @@
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <style>
-        :root { --dark: #1a1a2e; --accent: #e94560; --win: #27ae60; }
-        body { background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 10px; }
-        #login-screen, #setup-screen { display: flex; align-items: center; justify-content: center; min-height: 90vh; }
-        .login-box { background: #16213e; padding: 30px; border-radius: 20px; width: 85%; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        :root {
+            --dark: #08131c;
+            --dark-2: #0f1f2d;
+            --panel: rgba(18, 28, 40, 0.82);
+            --panel-strong: rgba(14, 22, 32, 0.96);
+            --accent: #c648ff;
+            --accent-2: #5cd1e6;
+            --win: #27ae60;
+            --danger: #ff4b4b;
+            --text: #f3f7fa;
+            --muted: #b8c7d4;
+            --border: rgba(108, 138, 152, 0.35);
+            --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 16px;
+            min-height: 100vh;
+            color: var(--text);
+            font-family: 'Segoe UI', sans-serif;
+            text-align: center;
+            background:
+                radial-gradient(circle at top, rgba(198, 72, 255, 0.12), transparent 28%),
+                radial-gradient(circle at 85% 10%, rgba(92, 209, 230, 0.10), transparent 22%),
+                linear-gradient(135deg, #050d14 0%, var(--dark) 45%, #0c2230 100%);
+            overflow-x: hidden;
+        }
+
+        #login-screen, #setup-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 32px);
+        }
+
+        .login-box {
+            width: 85%;
+            max-width: 460px;
+            padding: 28px;
+            border-radius: 24px;
+            background: linear-gradient(180deg, rgba(22, 33, 62, 0.92), rgba(12, 20, 30, 0.92));
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
         #game-screen { display: none; }
-        input { padding: 15px; border-radius: 10px; border: none; width: 90%; margin-bottom: 20px; font-size: 1.1rem; text-align: center; background: #0f3460; color: white; }
-        .btn { border: none; padding: 15px; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; }
-        .btn-linea { background: var(--win); margin-bottom: 10px; }
-        .btn-bingo { background: var(--accent); }
-        .btn-secondary { background: #0f3460; }
-        .btn-small { width: auto; min-width: 70px; }
-        .btn-choice.active { background: var(--accent); }
-        .last-ball { background: white; color: var(--dark); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; margin: 15px auto; border: 4px solid var(--accent); box-shadow: 0 0 15px var(--accent); }
-        .section { background: rgba(255,255,255,0.06); padding: 14px; border-radius: 14px; margin-top: 14px; }
+
+        h2 {
+            letter-spacing: 1px;
+            text-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        }
+
+        input {
+            padding: 15px;
+            border-radius: 14px;
+            border: 1px solid rgba(92, 209, 230, 0.15);
+            width: 90%;
+            margin-bottom: 18px;
+            font-size: 1.05rem;
+            text-align: center;
+            background: rgba(15, 52, 96, 0.85);
+            color: white;
+            outline: none;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+
+        input:focus {
+            border-color: rgba(92, 209, 230, 0.55);
+            box-shadow: 0 0 0 3px rgba(92, 209, 230, 0.12);
+        }
+
+        .btn {
+            border: none;
+            padding: 15px;
+            border-radius: 14px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: transform .15s ease, filter .15s ease, box-shadow .15s ease, background-color .15s ease;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+        }
+
+        .btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+        .btn:active { transform: translateY(0); }
+        .btn:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.2); transform: none; }
+
+        .btn-linea { background: linear-gradient(135deg, #1fa463, #27ae60); margin-bottom: 10px; }
+        .btn-bingo { background: linear-gradient(135deg, #a73cff, var(--accent)); }
+        .btn-secondary { background: rgba(15, 52, 96, 0.92); border: 1px solid rgba(92, 209, 230, 0.12); }
+        .btn-small { width: auto; min-width: 70px; padding-inline: 16px; }
+        .btn-choice.active { background: linear-gradient(135deg, #a73cff, var(--accent)); box-shadow: 0 0 0 3px rgba(198, 72, 255, 0.18); }
+
+        .last-ball {
+            background: radial-gradient(circle at 35% 30%, #ffffff 0%, #f2f6fa 100%);
+            color: var(--dark);
+            width: 78px;
+            height: 78px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 15px auto;
+            border: 4px solid var(--accent);
+            box-shadow: 0 0 18px rgba(198, 72, 255, 0.45), 0 0 0 6px rgba(198, 72, 255, 0.10);
+        }
+
+        .section {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 16px;
+            border-radius: 18px;
+            margin-top: 14px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+
         .choice-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-        .cartones-wrap { display: flex; flex-direction: column; gap: 16px; width: min(100%, 900px); margin: 0 auto; }
-        .carton-card { background: #ecf0f1; padding: 10px; border-radius: 10px; }
-        .fav-row { display: grid; grid-template-columns: 110px 1fr; gap: 10px; align-items: center; margin-bottom: 10px; }
-        .fav-row input { width: 100%; margin-bottom: 0; box-sizing: border-box; }
-        .carton-checks { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; color: #c8d6e5; font-size: 0.95rem; }
-        .carton-checks label { display: inline-flex; align-items: center; gap: 6px; }
+        .cartones-wrap { display: flex; flex-direction: column; gap: 16px; width: min(100%, 920px); margin: 0 auto; }
+        .carton-card {
+            background: linear-gradient(180deg, rgba(236,240,241,0.98), rgba(214, 223, 228, 0.98));
+            padding: 12px;
+            border-radius: 16px;
+            box-shadow: 0 14px 30px rgba(0,0,0,0.22);
+            border: 1px solid rgba(255,255,255,0.7);
+        }
+
+        .fav-row {
+            display: grid;
+            grid-template-columns: 110px 1fr;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .fav-row input {
+            width: 100%;
+            margin-bottom: 0;
+            box-sizing: border-box;
+        }
+
+        .carton-checks {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            color: #c8d6e5;
+            font-size: 0.95rem;
+        }
+
+        .carton-checks label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
         .carton-checks input { width: auto; margin: 0; }
         .hidden { display: none !important; }
 
         /* DISEÑO CARTÓN TRADICIONAL */
-        .grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; background: #2c3e50; padding: 5px; border-radius: 5px; }
-        .cell { background: white; aspect-ratio: 0.8; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; color: #333; border-radius: 4px; position: relative; cursor: pointer; }
-        .empty { background: #bdc3c7; cursor: default; }
-        .marked::after { content: "X"; position: absolute; color: rgba(233, 69, 96, 0.8); font-size: 2rem; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 4px;
+            background: #243746;
+            padding: 6px;
+            border-radius: 8px;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.05);
+        }
+
+        .cell {
+            background: white;
+            aspect-ratio: 0.8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.15rem;
+            color: #333;
+            border-radius: 5px;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        .empty {
+            background: #bdc3c7;
+            cursor: default;
+        }
+
+        .marked {
+            background: linear-gradient(135deg, #fff7fa 0%, #f9d4df 100%);
+        }
+
+        .marked::after {
+            content: "X";
+            position: absolute;
+            color: rgba(233, 69, 96, 0.88);
+            font-size: 2rem;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+        }
+
+        #info-player {
+            color: #90a4b2 !important;
+            letter-spacing: 0.2px;
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .login-box { width: 100%; padding: 22px 16px; border-radius: 20px; }
+            .fav-row { grid-template-columns: 1fr; }
+            .carton-checks { justify-content: space-between; }
+            .btn { padding: 14px; }
+            .last-ball { width: 72px; height: 72px; font-size: 1.8rem; }
+        }
     </style>
 </head>
 <body>
@@ -62,7 +258,7 @@
             </div>
 
             <div id="favorites-section" class="section hidden">
-                <p style="margin-top: 0; color: #c8d6e5; font-weight: bold;">2. Ahora escribe 1 o 2 números favoritos y en qué cartones aparecerán</p>
+                <p style="margin-top: 0; color: #c8d6e5; font-weight: bold;">2. Si quieres, escribe 1 o 2 números favoritos y en qué cartones aparecerán</p>
 
                 <div class="fav-row">
                     <input type="number" id="fav1-number" min="1" max="90" placeholder="Favorito 1">
@@ -89,7 +285,7 @@
 
     <div id="game-screen">
         <div style="display:flex; gap:10px; max-width:500px; margin:auto; margin-bottom:10px;">
-            <button class="btn btn-linea" onclick="cantar('LÍNEA')">LÍNEA</button>
+            <button id="BtnLinea" class="btn btn-linea" onclick="cantar('LÍNEA')">LÍNEA</button>
             <button class="btn btn-bingo" onclick="cantar('BINGO')">BINGO</button>
         </div>
         <div class="last-ball" id="last-ball">--</div>
@@ -102,24 +298,117 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const sala = new URLSearchParams(window.location.search).get('sala') || "TEST";
-        let miNick = localStorage.getItem('bingo_nick') || "";
+        let miNick = localStorage.getItem(`bingo_nick_${sala}`) || "";
         let numCartones = 0;
         let favoritos = [];
         let setupKey = "";
+        const partidaKey = `bingo_state_${sala}`;
+        const lineaKey = `bingo_linea_${sala}`;
+        const lineaConfirmadaKey = `bingo_linea_confirmada_${sala}`;
+        const lineaSignalKey = `bingo_linea_signal_${sala}`;
+        let lineaPollingTimer = null;
 
         function buildSetupKey() {
-            return `bingo_setup_${sala}_${miNick}`;
+            return `bingo_setup_${sala}`;
+        }
+
+        function leerEstadoPartida() {
+            try {
+                const raw = localStorage.getItem(partidaKey);
+                return raw ? JSON.parse(raw) : null;
+            } catch {
+                return null;
+            }
+        }
+
+        function guardarEstadoPartida(activa) {
+            if (!miNick) return;
+            localStorage.setItem(partidaKey, JSON.stringify({
+                activa,
+                cartones: numCartones,
+                favoritos
+            }));
+        }
+
+        function mostrarLogin() {
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('game-screen').style.display = 'none';
+        }
+
+        function mostrarConfiguracion() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('setup-screen').classList.remove('hidden');
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('nick-label').innerText = "Jugador: " + miNick;
+        }
+
+        function mostrarJuego() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('game-screen').style.display = 'block';
+            iniciarPollingLinea();
+        }
+
+        function leerLineaGanada() {
+            return localStorage.getItem(lineaKey) === 'true' || localStorage.getItem(lineaConfirmadaKey) === 'true' || localStorage.getItem(lineaSignalKey) === 'true';
+        }
+
+        function guardarLineaGanada(valor) {
+            localStorage.setItem(lineaKey, valor ? 'true' : 'false');
+        }
+
+        function guardarLineaConfirmada(valor) {
+            localStorage.setItem(lineaConfirmadaKey, valor ? 'true' : 'false');
+        }
+
+        function guardarLineaSignal(valor) {
+            localStorage.setItem(lineaSignalKey, valor ? 'true' : 'false');
+        }
+
+        function aplicarEstadoLinea() {
+            const btnLinea = document.getElementById('BtnLinea');
+            if (!btnLinea) return;
+            const ganada = leerLineaGanada();
+            btnLinea.disabled = ganada;
+            btnLinea.style.opacity = ganada ? '0.45' : '1';
+        }
+
+        function iniciarPollingLinea() {
+            if (lineaPollingTimer) return;
+            lineaPollingTimer = setInterval(() => {
+                aplicarEstadoLinea();
+            }, 1000);
+        }
+
+        function restaurarPartidaGuardada() {
+            const setup = leerSetupGuardado();
+            if (!setup || !setup.cartones) {
+                mostrarConfiguracion();
+                return;
+            }
+
+            numCartones = setup.cartones;
+            favoritos = Array.isArray(setup.favoritos) ? setup.favoritos : [];
+            mostrarJuego();
+            document.getElementById('info-player').innerText = `Jugador: ${miNick} | Cartones: ${numCartones}`;
+            init(numCartones, favoritos);
+            aplicarEstadoLinea();
         }
 
         function entrar() {
             miNick = document.getElementById('nick-input').value.trim();
             if (!miNick) return alert("Escribe un nick");
-            localStorage.setItem('bingo_nick', miNick);
+            localStorage.setItem(`bingo_nick_${sala}`, miNick);
             setupKey = buildSetupKey();
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('setup-screen').classList.remove('hidden');
             document.getElementById('nick-label').innerText = "Jugador: " + miNick;
-            cargarConfiguracionGuardada();
+
+            if (leerSetupGuardado()) {
+                restaurarPartidaGuardada();
+                return;
+            }
+
+            mostrarConfiguracion();
         }
 
         function cargarConfiguracionGuardada() {
@@ -196,16 +485,12 @@
             if (!numCartones) return alert("Elige cuántos cartones quieres");
 
             favoritos = recolectarFavoritos(true);
-            if (favoritos.length === 0) {
-                alert("Escribe al menos 1 número favorito y selecciona en qué cartón aparecerá.");
-                return;
-            }
-
             guardarSetupGuardado(numCartones, favoritos);
-            document.getElementById('setup-screen').classList.add('hidden');
-            document.getElementById('game-screen').style.display = 'block';
+            guardarEstadoPartida(true);
+            mostrarJuego();
             document.getElementById('info-player').innerText = `Jugador: ${miNick} | Cartones: ${numCartones}`;
             init(numCartones, favoritos);
+            aplicarEstadoLinea();
         }
 
         function recolectarFavoritos(estricto) {
@@ -261,7 +546,7 @@
                     .filter(f => f.cartons.includes(cartonIndex))
                     .map(f => f.numero);
 
-                const key = `bingo_v3_${sala}_${miNick}_${cantidad}_${signature}_${cartonIndex}`;
+                const key = `bingo_v3_${sala}_${cantidad}_${signature}_${cartonIndex}`;
                 let matrix = JSON.parse(localStorage.getItem(key));
 
                 if (matrix) {
@@ -419,12 +704,52 @@
         }
 
         function cantar(tipo) {
+            if (tipo === 'LÍNEA' && leerLineaGanada()) {
+                alert('La línea ya fue validada en esta sala.');
+                return;
+            }
             db.ref(`Salas/${sala}/Avisos`).push({ jugador: miNick, tipo: tipo, t: Date.now() });
             alert("¡" + tipo + " enviada!");
         }
 
+        db.ref(`Salas/${sala}/LineaGanada`).on('value', snap => {
+            const ganada = !!snap.val();
+            guardarLineaGanada(ganada);
+            guardarLineaConfirmada(ganada);
+            guardarLineaSignal(ganada);
+            aplicarEstadoLinea();
+        });
+
+        db.ref(`Salas/${sala}/LineaSignal`).on('value', snap => {
+            const signal = snap.val();
+            const confirmada = !!signal && (signal.ok === true || signal.confirmada === true || signal === true);
+            guardarLineaSignal(confirmada);
+            if (confirmada) {
+                guardarLineaConfirmada(true);
+                aplicarEstadoLinea();
+            }
+        });
+
         db.ref(`Salas/${sala}/Ultima`).on('value', snap => {
             if (snap.val()) document.getElementById('last-ball').innerText = snap.val();
+        });
+
+        (function iniciarAplicacion() {
+            setupKey = buildSetupKey();
+            if (!miNick) {
+                mostrarLogin();
+                return;
+            }
+
+            document.getElementById('nick-input').value = miNick;
+            restaurarPartidaGuardada();
+        })();
+
+        window.addEventListener('beforeunload', () => {
+            if (lineaPollingTimer) {
+                clearInterval(lineaPollingTimer);
+                lineaPollingTimer = null;
+            }
         });
     </script>
 </body>

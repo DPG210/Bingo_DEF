@@ -19,6 +19,7 @@ public partial class MainPage : ContentPage
     private IDisposable? _escuchaAvisos;
     private TaskCompletionSource<bool>? _validacionTcs; // Variable para controlar la alerta personalizada
     private bool _isCompactLayout;
+    private bool _lineaHabilitada = true;
 
     private readonly FirebaseClient _fb = new FirebaseClient("https://bingov3-1ec3a-default-rtdb.europe-west1.firebasedatabase.app/");
 
@@ -35,9 +36,22 @@ public partial class MainPage : ContentPage
         BuildBoard();
         _ = CargarVoces();
         IniciarEscuchaAvisos();
+        _ = CargarEstadoInicialLineaGanada();
+        IniciarEscuchaLineaGanada();
 
         SizeChanged += (_, _) => AplicarLayoutResponsive();
         Loaded += (_, _) => AplicarLayoutResponsive();
+    }
+
+    private async Task CargarEstadoInicialLineaGanada()
+    {
+        try
+        {
+            var valor = await _fb.Child("Salas").Child(_idSala).Child("LineaGanada").OnceSingleAsync<bool?>();
+            if (valor == true)
+                MainThread.BeginInvokeOnMainThread(DeshabilitarLinea);
+        }
+        catch { }
     }
 
     private void AplicarLayoutResponsive()
@@ -110,11 +124,15 @@ public partial class MainPage : ContentPage
                            ? $"🔥 ¡{nick} dice tener BINGO! ¿Es correcto?"
                            : $"⭐ {nick} dice tener LÍNEA. ¿Es correcta?";
 
-                       // Usamos la nueva alerta personalizada
                        bool esValido = await MostrarValidacionPersonalizada(textoAlerta);
 
                        if (esValido)
+                       {
+                           if (premio == "LÍNEA")
+                               DeshabilitarLinea();
+
                            await MostrarAnimacionVictoria(nick, premio);
+                       }
                        else
                        {
                            _timer.Start();
@@ -123,6 +141,40 @@ public partial class MainPage : ContentPage
                    });
                }
            });
+    }
+
+    private void IniciarEscuchaLineaGanada()
+    {
+        _fb.Child("Salas").Child(_idSala).Child("LineaSignal")
+            .AsObservable<JObject>()
+            .Subscribe(evt =>
+            {
+                if (evt?.Object != null)
+                {
+                    MainThread.BeginInvokeOnMainThread(DeshabilitarLinea);
+                }
+            });
+    }
+
+    private void DeshabilitarLinea()
+    {
+        if (!_lineaHabilitada)
+            return;
+
+        _lineaHabilitada = false;
+        LineaStatusLabel.Text = "LÍNEA ya validada";
+        LineaStatusLabel.IsVisible = true;
+
+        var btnLinea = this.FindByName<Button>("BtnLinea");
+        if (btnLinea != null)
+        {
+            btnLinea.IsEnabled = false;
+            btnLinea.Opacity = 0.45;
+        }
+
+        _ = _fb.Child("Salas").Child(_idSala).Child("LineaGanada").PutAsync(true);
+        _ = _fb.Child("Salas").Child(_idSala).Child("LineaConfirmada").PutAsync(true);
+        _ = _fb.Child("Salas").Child(_idSala).Child("LineaSignal").PutAsync(new { t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), ok = true });
     }
 
     private async Task MostrarAnimacionVictoria(string nick, string premio)
@@ -212,6 +264,12 @@ public partial class MainPage : ContentPage
 
         _timer.Stop();
         _idSala = "SALA" + DateTime.Now.Ticks.ToString().Substring(10);
+        _lineaHabilitada = true;
+        LineaStatusLabel.IsVisible = false;
+        LineaStatusLabel.Text = string.Empty;
+        _ = _fb.Child("Salas").Child(_idSala).Child("LineaGanada").PutAsync(false);
+        _ = _fb.Child("Salas").Child(_idSala).Child("LineaConfirmada").PutAsync(false);
+        _ = _fb.Child("Salas").Child(_idSala).Child("LineaSignal").PutAsync(new { t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), ok = false });
 
         _bombo = Enumerable.Range(1, 90).ToList();
         _ultimasBolas.Clear();
@@ -226,6 +284,7 @@ public partial class MainPage : ContentPage
         await GenerarCodigoQR();
 
         IniciarEscuchaAvisos();
+        IniciarEscuchaLineaGanada();
 
         QRModal.IsVisible = true;
     }
@@ -291,12 +350,10 @@ public partial class MainPage : ContentPage
         }
     }
 
-    // --- NUEVAS FUNCIONES PARA EL MODAL DE VALIDACIÓN ---
     private Task<bool> MostrarValidacionPersonalizada(string mensaje)
     {
         ValidationMessage.Text = mensaje;
         ValidationOverlay.IsVisible = true;
-        
         _validacionTcs = new TaskCompletionSource<bool>();
         return _validacionTcs.Task;
     }

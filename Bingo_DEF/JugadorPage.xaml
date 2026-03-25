@@ -36,7 +36,7 @@
 
             <Border x:Name="FavoritosStep" IsVisible="False" BackgroundColor="#CC000000" StrokeShape="RoundRectangle 20" Padding="16">
                 <VerticalStackLayout Spacing="12">
-                    <Label Text="3. Números favoritos y cartones" TextColor="#c8d6e5" FontAttributes="Bold" />
+                    <Label Text="3. Números favoritos opcionales y cartones" TextColor="#c8d6e5" FontAttributes="Bold" />
 
                     <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="90,*" RowSpacing="10" ColumnSpacing="10">
                         <Label Text="Fav. 1" TextColor="White" VerticalTextAlignment="Center" />
